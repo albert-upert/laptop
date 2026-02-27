@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Karyawan - ICT Universitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e62129', // --red-500
+                        border: '#d9d9d9',  // --gray-400
+                        input: '#bfbfbf',   // --gray-500
+                        muted: '#f5f5f5',   // --gray-200
+                        'muted-foreground': '#8c8c8c', // --gray-600
+                        foreground: '#262626', // --gray-800
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'], // font-family: Poppins
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Typography Styles sesuai spesifikasi typography.tsx */
+        .text-h3 { font-size: 36px; font-weight: 700; line-height: 46px; }
+        .text-body-small { font-size: 14px; font-weight: 400; line-height: 22px; }
+        .text-caption-bold { font-size: 12px; font-weight: 700; line-height: 20px; }
+    </style>
+</head>
+<body class="bg-[#fafafa] font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg border border-border overflow-hidden">
+        
+        <div class="p-6 border-b border-border bg-gradient-to-b from-white to-[#ffeced]">
+            <h1 class="text-h3 text-primary font-bold">ICT Universitas</h1>
+            <p class="text-caption-bold text-muted-foreground uppercase tracking-widest mt-1">Sistem Distribusi Aset</p>
+        </div>
+
+        <div class="p-8">
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-foreground">Verifikasi Pegawai</h2>
+                <p class="text-body-small text-muted-foreground mt-2">Silakan masukkan NIP Anda untuk memeriksa status pengambilan inventaris laptop baru.</p>
+            </div>
+
+            <form action="/cek-karyawan" method="POST" class="space-y-6">
+                
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-foreground leading-[22px]">Nomor Induk Pegawai (NIP)</label>
+                    <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white transition-colors focus-within:border-primary">
+                        <input 
+                            type="text" 
+                            name="nip" 
+                            placeholder="Masukkan NIP" 
+                            required
+                            class="px-3 py-2 text-sm h-full flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+                        >
+                    </div>
+                    <span class="text-xs text-muted-foreground leading-5">Masukkan NIP tanpa spasi atau tanda baca.</span>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="h-10 w-full px-4 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium transition-all hover:bg-[#ef6c70] active:bg-[#a51217]"
+                >
+                    Cek Status
+                </button>
+            </form>
+        </div>
+
+        <div class="px-6 py-4 bg-muted border-t border-border flex justify-center items-center">
+            <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">ICT Division Technical Support</span>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi & Tanda Tangan BAST - ICT Universitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e62129', // --red-500
+                        border: '#d9d9d9',  // --gray-400
+                        foreground: '#262626', // --gray-800
+                        muted: '#f5f5f5',   // --gray-200
+                        'muted-foreground': '#8c8c8c', // --gray-600
+                        'navbar-gradient-end': '#ffeced'
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Typography Presisi - Berdasarkan typography.tsx */
+        .text-h5 { font-family: 'Poppins'; font-size: 24px; font-weight: 700; line-height: 32px; }
+        .text-body-small { font-family: 'Poppins'; font-size: 14px; font-weight: 400; line-height: 22px; }
+        .text-caption-bold { font-family: 'Poppins'; font-size: 12px; font-weight: 700; line-height: 20px; }
+        
+        #signature-pad { 
+            border: 2px dashed #d9d9d9; 
+            border-radius: 12px; 
+            background: #fafafa; 
+            cursor: crosshair; 
+            touch-action: none; 
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body class="bg-[#fafafa] font-sans text-foreground p-6 flex justify-center items-start min-h-screen">
+
+    <div class="max-w-3xl w-full bg-white border border-border rounded-xl shadow-sm overflow-hidden">
+        
+        <div class="p-6 border-b border-border bg-gradient-to-b from-white to-[#ffeced]">
+            <h1 class="text-h5 text-primary uppercase">Berita Acara Serah Terima</h1>
+            <p class="text-caption-bold text-muted-foreground tracking-widest mt-1 uppercase">Konfirmasi & Tanda Tangan</p>
+        </div>
+
+        <div class="p-8 space-y-8">
+            <div>
+                <h2 class="text-caption-bold text-muted-foreground uppercase mb-3">Detail Perangkat:</h2>
+                <div class="overflow-hidden rounded-lg border border-border">
+                    <table class="w-full text-left text-body-small border-collapse">
+                        <thead class="bg-muted border-b border-border text-caption-bold text-muted-foreground uppercase">
+                            <tr>
+                                <th class="px-4 py-3">Aset</th>
+                                <th class="px-4 py-3">Model</th>
+                                <th class="px-4 py-3">Serial Number</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            <tr>
+                                <td class="px-4 py-4 font-bold text-primary">Laptop Baru</td>
+                                <td class="px-4 py-4"><%= user.model_baru || 'Aset Universitas' %></td>
+                                <td class="px-4 py-4 font-mono font-bold"><%= user.sn_baru %></td>
+                            </tr>
+                            <tr class="bg-muted/30">
+                                <td class="px-4 py-4 text-muted-foreground italic">Laptop Lama</td>
+                                <td class="px-4 py-4 text-muted-foreground italic"><%= user.model_lama %></td>
+                                <td class="px-4 py-4 font-mono text-muted-foreground italic"><%= user.sn_lama %></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <form action="/save-signature/<%= user.id %>" method="POST" id="signature-form" class="space-y-8">
+                
+                <div class="space-y-3">
+                    <h2 class="text-caption-bold text-muted-foreground uppercase tracking-wider">Kelengkapan:</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-border bg-white cursor-pointer hover:bg-muted/20">
+                            <input type="checkbox" name="item_charger" value="true" checked class="h-4 w-4 rounded border-border text-primary focus:ring-primary">
+                            <span class="text-body-small font-semibold">Unit Charger</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-border bg-white cursor-pointer hover:bg-muted/20">
+                            <input type="checkbox" name="item_tas" value="true" checked class="h-4 w-4 rounded border-border text-primary focus:ring-primary">
+                            <span class="text-body-small font-semibold">Tas Laptop</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-[#fafbee] border border-[#c2d43d]/30">
+                    <input type="checkbox" id="agree" required class="mt-1 h-5 w-5 rounded border-border text-primary focus:ring-primary cursor-pointer">
+                    <label for="agree" class="text-body-small italic text-[#5b6416] cursor-pointer">
+                        Saya menyatakan telah menerima perangkat beserta kelengkapannya dalam kondisi baik dan bertanggung jawab penuh atas aset ini sesuai peraturan Universitas.
+                    </label>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-caption-bold text-muted-foreground uppercase">Tanda Tangan Digital:</label>
+                    <canvas id="signature-pad"></canvas>
+                    <div class="flex justify-between items-center">
+                        <button type="button" id="clear" class="text-xs font-bold text-primary hover:underline uppercase">Hapus Tanda Tangan</button>
+                        <p class="text-[10px] text-muted-foreground">Gunakan jari atau mouse di atas kotak</p>
+                    </div>
+                </div>
+
+                <input type="hidden" name="signature_data" id="signature-input">
+                <button type="submit" id="submit-btn" disabled
+                    class="h-12 w-full px-4 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold transition-all opacity-50 cursor-not-allowed">
+                    Konfirmasi & Simpan BAST
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        const canvas = document.getElementById("signature-pad");
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(38, 38, 38)'
+        });
+        
+        const submitBtn = document.getElementById("submit-btn");
+        const agreeCheckbox = document.getElementById("agree");
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            if (signaturePad.isEmpty()) {
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        function validateForm() {
+            const isSigned = !signaturePad.isEmpty();
+            const isAgreed = agreeCheckbox.checked;
+            
+            if (isSigned && isAgreed) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        }
+
+        agreeCheckbox.addEventListener("change", validateForm);
+        canvas.addEventListener("mouseup", validateForm);
+        canvas.addEventListener("touchend", validateForm);
+        signaturePad.onEnd = validateForm;
+
+        document.getElementById("clear").addEventListener("click", () => {
+            signaturePad.clear();
+            validateForm();
+        });
+
+        document.getElementById("signature-form").addEventListener("submit", function(e) {
+            // PERBAIKAN: name field harus signature_data sesuai app.js
+            const dataUrl = signaturePad.toDataURL();
+            document.getElementById("signature-input").value = dataUrl;
+        });
+    </script>
+</body>
+</html>

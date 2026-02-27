@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi Data Aset - ICT Universitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e62129', border: '#d9d9d9', foreground: '#262626',
+                        muted: '#f5f5f5', 'muted-foreground': '#8c8c8c', input: '#bfbfbf', 'navbar-gradient-end': '#ffeced'
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .text-h5 { font-family: 'Poppins'; font-size: 24px; font-weight: 700; line-height: 32px; }
+        .text-body-small { font-family: 'Poppins'; font-size: 14px; font-weight: 400; line-height: 22px; }
+        .text-body-small-bold { font-family: 'Poppins'; font-size: 14px; font-weight: 700; line-height: 22px; }
+        .text-caption-bold { font-family: 'Poppins'; font-size: 12px; font-weight: 700; line-height: 20px; }
+    </style>
+</head>
+<body class="bg-[#fafafa] font-sans text-[#262626] p-6 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-xl w-full bg-white border border-border rounded-xl shadow-sm overflow-hidden">
+        
+        <div class="p-6 border-b border-border bg-gradient-to-b from-white to-[#ffeced]">
+            <h1 class="text-h5 text-primary uppercase">Konfirmasi Data Aset</h1>
+            <p class="text-caption-bold text-muted-foreground tracking-widest mt-1 uppercase">Input Informasi Perangkat Lama</p>
+        </div>
+
+        <div class="p-8 space-y-8">
+            <div class="space-y-4">
+                <h2 class="text-caption-bold text-muted-foreground uppercase border-b border-dashed border-border pb-2">Identitas Pegawai</h2>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="flex justify-between">
+                        <span class="text-body-small text-muted-foreground">Nama Lengkap</span>
+                        <span class="text-body-small-bold"><%= user.nama %></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-body-small text-muted-foreground">NIP</span>
+                        <span class="text-body-small-bold"><%= user.nip %></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-body-small text-muted-foreground">Model Laptop</span>
+                        <span class="text-body-small-bold text-primary"><%= user.model_lama %></span>
+                    </div>
+                </div>
+            </div>
+
+            <form action="/simpan-sn-lama/<%= user.id %>" method="POST" class="space-y-6">
+                
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-body-small-bold">Serial Number Laptop LAMA:</label>
+                    <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white focus-within:border-primary">
+                        <input type="text" name="sn_lama" placeholder="Contoh: SN12345678" required class="px-3 py-2 text-sm h-full flex-1 outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-[#fafbee] border border-[#c2d43d]/30">
+                        <div class="relative inline-flex items-center mt-1 shrink-0">
+                            <input type="checkbox" name="setuju_hak_milik" id="agree" required class="peer absolute opacity-0 cursor-pointer w-4 h-4">
+                            <div class="h-4 w-4 rounded border-[1.5px] border-input bg-white peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-colors">
+                                <svg class="h-3 w-3 text-white hidden peer-checked:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
+                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <label for="agree" class="text-body-small text-[#595959] cursor-pointer">
+                            Saya setuju menerima laptop lama menjadi hak milik pribadi dan membebaskan Universitas dari biaya pemeliharaan.
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="h-10 w-full bg-primary text-white font-bold rounded-lg hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md uppercase">
+                    Konfirmasi & Simpan
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
