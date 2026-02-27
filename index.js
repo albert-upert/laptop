@@ -20,11 +20,14 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nama TEXT,
     nip TEXT UNIQUE,
+    email TEXT UNIQUE,
     model_lama TEXT,
     sn_lama TEXT,
     sn_baru TEXT,
     status TEXT DEFAULT 'Pending',
     signature TEXT, 
+    nama_file TEXT,
+    otp TEXT,
     tanggal_pengajuan DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
