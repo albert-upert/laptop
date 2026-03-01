@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi OTP - ICT Universitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e62129',
+                        border: '#d9d9d9',
+                        foreground: '#262626',
+                        muted: '#f5f5f5',
+                        'muted-foreground': '#8c8c8c',
+                        input: '#bfbfbf',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .text-caption-bold { font-size: 12px; font-weight: 700; line-height: 20px; }
+    </style>
+</head>
+<body class="bg-[#fafafa] font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg border border-border overflow-hidden">
+        
+        <div class="p-6 border-b border-border bg-gradient-to-b from-white to-[#ffeced] text-center">
+            <h1 class="text-2xl font-bold text-primary">Verifikasi Kode</h1>
+            <p class="text-caption-bold text-muted-foreground uppercase tracking-widest mt-1">Keamanan Distribusi Aset</p>
+        </div>
+
+        <div class="p-8">
+            <div class="mb-6 text-center">
+                <p class="text-sm text-foreground">
+                    Kami telah mengirimkan 6 digit kode OTP ke email resmi Anda yang terdaftar dengan NIP <span class="font-bold text-primary"><%= nip %></span>.
+                </p>
+            </div>
+
+            <form id="otpForm" class="space-y-6">
+        <input type="hidden" id="nip" name="nip" value="<%= nip %>">
+
+        <div class="flex flex-col gap-3">
+            <div id="errorMessage" class="hidden text-xs text-center text-primary font-bold bg-red-50 p-2 rounded border border-primary/20">
+                OTP Salah! Silakan coba lagi.
+            </div>
+
+            <div class="flex justify-center">
+                <input 
+                    type="text" 
+                    id="otp_input"
+                    name="otp_input" 
+                    maxlength="6" 
+                    placeholder="000000"
+                    required
+                    autofocus
+                    class="w-full text-center text-3xl font-bold tracking-[0.75rem] h-16 rounded-lg border-2 border-input focus:border-primary outline-none transition-all"
+                >
+            </div>
+        </div>
+
+        <button type="submit" id="btnSubmit" class="h-12 w-full bg-primary text-white font-bold rounded-lg hover:bg-[#ef6c70] shadow-md">
+            Verifikasi & Lanjutkan
+        </button>
+    </form>
+
+    <div class="mt-8 pt-6 border-t border-dashed border-border text-center">
+        <a href="/" class="text-xs text-primary font-bold hover:underline">Input Ulang NIP</a>
+    </div>
+</div>
+
+<script>
+    const otpForm = document.getElementById('otpForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Mencegah pindah halaman
+        
+        const nip = document.getElementById('nip').value;
+        const otp_input = document.getElementById('otp_input').value;
+
+        // Reset tampilan
+        errorMessage.classList.add('hidden');
+        btnSubmit.innerText = 'Memverifikasi...';
+
+        try {
+            const response = await fetch('/verifikasi-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nip, otp_input })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Jika sukses, baru pindah ke halaman input-sn
+                window.location.href = '/input-sn-page/' + nip; 
+            } else {
+                // Jika gagal, tampilkan pesan tanpa pindah halaman
+                errorMessage.classList.remove('hidden');
+                document.getElementById('otp_input').value = '';
+                document.getElementById('otp_input').focus();
+                btnSubmit.innerText = 'Verifikasi & Lanjutkan';
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Terjadi gangguan koneksi.');
+        }
+    });
+</script>
+
+</body>
+</html>

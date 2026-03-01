@@ -43,13 +43,9 @@
                         <span class="text-body-small text-muted-foreground">Nama Lengkap</span>
                         <span class="text-body-small-bold"><%= user.nama %></span>
                     </div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between border-b border-gray-100 pb-2">
                         <span class="text-body-small text-muted-foreground">NIP</span>
                         <span class="text-body-small-bold"><%= user.nip %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-body-small text-muted-foreground">Model Laptop</span>
-                        <span class="text-body-small-bold text-primary"><%= user.model_lama %></span>
                     </div>
                 </div>
             </div>
@@ -57,9 +53,29 @@
             <form action="/simpan-sn-lama/<%= user.id %>" method="POST" class="space-y-6">
                 
                 <div class="flex flex-col gap-1.5">
+                    <label class="text-body-small-bold">Model Laptop LAMA:</label>
+                    <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white focus-within:border-primary">
+                        <input 
+                            type="text" 
+                            name="model_lama" 
+                            placeholder="Contoh: MacBook Air 2017 / Lenovo L480" 
+                            required 
+                            class="px-3 py-2 text-sm h-full flex-1 outline-none font-medium uppercase placeholder:normal-case"
+                        >
+                    </div>
+                    <span class="text-[10px] text-muted-foreground">Ketikan merk dan tipe laptop yang Anda gunakan sekarang.</span>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
                     <label class="text-body-small-bold">Serial Number Laptop LAMA:</label>
                     <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white focus-within:border-primary">
-                        <input type="text" name="sn_lama" placeholder="Contoh: SN12345678" required class="px-3 py-2 text-sm h-full flex-1 outline-none">
+                        <input 
+                            type="text" 
+                            name="sn_lama" 
+                            placeholder="Contoh: SN12345678" 
+                            required 
+                            class="px-3 py-2 text-sm h-full flex-1 outline-none font-medium uppercase placeholder:normal-case"
+                        >
                     </div>
                 </div>
 
@@ -79,7 +95,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="h-10 w-full bg-primary text-white font-bold rounded-lg hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md uppercase">
+                <button type="submit" class="h-10 w-full bg-primary text-white font-bold rounded-lg hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md uppercase transition-all">
                     Konfirmasi & Simpan
                 </button>
             </form>
