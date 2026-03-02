@@ -14,13 +14,14 @@
         .input-ict { border: 1px solid #d9d9d9; font-size: 12px; }
         .input-ict:focus { border-color: #e62129; box-shadow: 0 0 0 3px rgba(230, 33, 41, 0.1); outline: none; }
         .btn-primary-ict { background-color: #e62129; border: none; font-weight: 700; font-size: 11px; transition: 0.3s; }
-        .btn-primary-ict:hover { background-color: #ca161c; }
+        .btn-primary-ict:hover:not(:disabled) { background-color: #ca161c; }
+        .btn-primary-ict:disabled { background-color: #f5a3a5; cursor: not-allowed; }
     </style>
 </head>
 <body class="py-5">
     <div class="container-fluid px-5">
         <div class="table-container">
-            <div class="d-flex justify-content-between align-items-center mb-4 pb-3">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
                     <h2 class="fw-bold text-dark mb-1">Manajemen Pengambilan Aset</h2>
                     <p class="text-muted small mb-0 uppercase tracking-widest">ICT Universitas Division - Verifikasi Fisik</p>
@@ -34,10 +35,10 @@
                         <tr>
                             <th width="15%">Pegawai</th>
                             <th width="15%">Laptop Lama</th>
-                            <th width="20%">Model Baru (Pilih)</th>
-                            <th width="20%">Verifikasi SN Lama</th>
-                            <th width="20%">Input SN Baru</th>
-                            <th width="10%" class="text-center">Aksi</th>
+                            <th width="15%">Status Serah Lama</th> <th width="18%">Model Baru (Pilih)</th>
+                            <th width="15%">Verifikasi SN Lama</th>
+                            <th width="15%">Input SN Baru</th>
+                            <th width="10%" class="text-center">Aksi Final</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,31 +48,43 @@
                                 <div class="fw-bold"><%= row.nama %></div>
                                 <div class="text-muted small" style="font-size: 10px;">NIP: <%= row.nip %></div>
                             </td>
+                            
                             <td>
                                 <div class="text-dark fw-semibold small"><%= row.model_lama %></div>
                             </td>
 
-                            <form action="/approve/<%= row.id %>" method="POST">
-                                <td>
-                                    <select name="model_baru" class="form-select form-select-sm input-ict fw-bold" required>
-                                        <option value="" disabled selected>Pilih Model...</option>
-                                        <option value="MacBook Pro M3 14-inch">MacBook Pro M3 14-inch</option>
-                                        <option value="MacBook Air M3 13-inch">MacBook Air M3 13-inch</option>
-                                        <option value="Dell Latitude 5440">Dell Latitude 5440</option>
-                                        <option value="Lenovo ThinkPad X1 Carbon Gen 11">Lenovo ThinkPad X1 Carbon Gen 11</option>
-                                        <option value="HP EliteBook 840 G10">HP EliteBook 840 G10</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" name="sn_lama" class="form-control form-control-sm input-ict fw-bold" value="<%= row.sn_lama %>" required>
-                                </td>
-                                <td>
-                                    <input type="text" name="sn_baru" class="form-control form-control-sm input-ict fw-bold text-primary" placeholder="SN Baru..." required>
-                                </td>
-                                <td class="text-center">
-                                    <button type="submit" class="btn btn-primary-ict text-white w-100 py-2 shadow-sm uppercase">Approve</button>
-                                </td>
-                            </form>
+                            <td class="text-center">
+                                <% if (row.ml_is_handed_over) { %>
+                                    <span class="badge bg-success mb-1">Sudah Diterima</span><br>
+                                    <span class="text-muted" style="font-size: 9px;"><%= row.tanggal_serah ? new Date(row.tanggal_serah).toLocaleString('id-ID') : '' %></span>
+                                <% } else { %>
+                                    <form action="/admin/konfirmasi-lama/<%= row.id %>" method="POST">
+                                        <button type="submit" class="btn btn-sm btn-warning fw-bold text-dark w-100" style="font-size: 10px;">Konfirmasi Serah</button>
+                                    </form>
+                                <% } %>
+                            </td>
+
+                            <td>
+                                <select name="model_baru" form="approve-<%= row.id %>" class="form-select form-select-sm input-ict fw-bold" required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                                    <option value="" disabled selected>Pilih Model...</option>
+                                    <option value="MacBook Pro M3 14-inch">MacBook Pro M3 14-inch</option>
+                                    <option value="MacBook Air M3 13-inch">MacBook Air M3 13-inch</option>
+                                    <option value="Dell Latitude 5440">Dell Latitude 5440</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" name="sn_lama" form="approve-<%= row.id %>" class="form-control form-control-sm input-ict fw-bold" value="<%= row.sn_lama %>" required <%= !row.ml_is_handed_over ? 'readonly' : '' %>>
+                            </td>
+                            <td>
+                                <input type="text" name="sn_baru" form="approve-<%= row.id %>" class="form-control form-control-sm input-ict fw-bold text-primary" placeholder="SN Baru..." required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                            </td>
+                            <td class="text-center">
+                                <form id="approve-<%= row.id %>" action="/approve/<%= row.id %>" method="POST">
+                                    <button type="submit" class="btn btn-primary-ict text-white w-100 py-2 shadow-sm uppercase" <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                                        Approve
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         <% }) %>
                     </tbody>
