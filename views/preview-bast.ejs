@@ -3,153 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview BAST - ICT Universitas</title>
+    <title>Serah Terima Selesai - TIK Universitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#e62129', // --red-500
-                        border: '#d9d9d9',  // --gray-400
-                        foreground: '#262626', // --gray-800
-                        muted: '#f5f5f5', // --gray-200
-                        'muted-foreground': '#8c8c8c', // --gray-600
-                        'navbar-gradient-end': '#ffeced'
-                    },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Typography - Berdasarkan typography.tsx */
-        .text-h4 { font-family: 'Poppins'; font-size: 32px; font-weight: 700; line-height: 38px; }
-        .text-h6 { font-family: 'Poppins'; font-size: 20px; font-weight: 700; line-height: 28px; }
-        .text-body-small { font-family: 'Poppins'; font-size: 14px; font-weight: 400; line-height: 22px; }
-        .text-body-small-bold { font-family: 'Poppins'; font-size: 14px; font-weight: 700; line-height: 22px; }
-        .text-caption-bold { font-family: 'Poppins'; font-size: 12px; font-weight: 700; line-height: 20px; }
-        .text-pixie { font-family: 'Poppins'; font-size: 10px; font-weight: 400; line-height: 12px; }
-
-        @media print { 
-            .no-print { display: none !important; }
-            body { background: white !important; padding: 0 !important; }
-            .print-border-none { border: none !important; box-shadow: none !important; }
-        }
+        body { font-family: 'Poppins', sans-serif; }
     </style>
 </head>
-<body class="bg-[#fafafa] font-sans text-foreground p-6 md:p-10">
+<body class="bg-[#fafafa] min-h-screen flex items-center justify-center p-6 text-[#262626]">
+    
+    <div class="max-w-lg w-full bg-white border border-[#d9d9d9] rounded-2xl shadow-xl p-8 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-[#e62129]"></div>
 
-    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6 no-print">
-        <a href="/" class="h-10 px-4 inline-flex items-center justify-center rounded-lg border border-border bg-white text-sm font-medium hover:bg-muted transition-all">
-            &larr; Kembali
-        </a>
-        <button onclick="window.print()" class="h-10 px-4 inline-flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium hover:bg-[#ca161c] transition-all shadow-md">
-            Cetak BAST (PDF)
-        </button>
-    </div>
+        <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-5 shadow-sm">
+            <svg class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
 
-    <div class="max-w-4xl mx-auto bg-white p-12 border border-border rounded-xl print-border-none shadow-sm">
+        <h1 class="text-2xl font-bold text-green-600 mb-2">Proses Selesai!</h1>
         
-        <div class="text-center border-b-2 border-primary pb-6 mb-8">
-            <h1 class="text-h4 text-primary uppercase">ICT Universitas</h1>
-            <p class="text-caption-bold text-muted-foreground tracking-[0.2em] mt-1">BERITA ACARA SERAH TERIMA INVENTARIS</p>
+        <p class="text-[15px] text-[#595959] mb-6 leading-relaxed">
+            Terima kasih, <span class="font-bold text-[#262626]"><%= user.nama %></span>. Proses serah terima perangkat aset IT telah berhasil direkam secara digital.
+        </p>
+
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-left flex items-start gap-3 shadow-sm">
+            <div class="bg-blue-100 p-2 rounded-lg shrink-0 mt-0.5">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-semibold text-blue-900 text-sm">Dokumen BAST Terkirim</h3>
+                <p class="text-xs text-blue-800 mt-1 leading-relaxed">
+                    Salinan resmi dokumen Berita Acara Serah Terima (PDF) telah dikirimkan ke email Anda: <br>
+                    <strong class="text-blue-900 text-sm"><%= user.email %></strong>
+                </p>
+            </div>
         </div>
 
-        <div class="mb-8">
-            <h2 class="text-h6 mb-4">Informasi Penerima</h2>
-            <div class="grid grid-cols-2 gap-y-2 text-body-small">
-                <div class="text-muted-foreground font-bold uppercase text-[10px]">Nama Lengkap</div>
-                <div class="font-semibold">: <%= user.nama %></div>
+        <div class="text-left bg-[#f9f9f9] border border-[#e5e5e5] rounded-xl p-5 mb-8">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-[#8c8c8c] border-b border-[#e5e5e5] pb-2 mb-3">Ringkasan Transaksi</h3>
+            
+            <div class="space-y-3 text-sm">
+                <div>
+                    <span class="block text-xs text-[#8c8c8c] mb-0.5">Laptop Baru (Diterima):</span>
+                    <span class="font-semibold text-[#262626]"><%= user.model_baru || 'Aset Universitas' %></span> 
+                    <span class="text-xs font-mono bg-white px-1.5 py-0.5 border border-[#d9d9d9] rounded text-[#e62129] ml-1"><%= user.sn_baru %></span>
+                </div>
                 
-                <div class="text-muted-foreground font-bold uppercase text-[10px]">NIP</div>
-                <div class="font-semibold">: <%= user.nip %></div>
-
-                <div class="text-muted-foreground font-bold uppercase text-[10px]">Tanggal</div>
-                <div class="font-semibold">: <%= new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %></div>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <h2 class="text-h6 mb-4">Detail Perangkat</h2>
-            <div class="rounded-xl border border-border overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-muted border-b border-border">
-                        <tr class="text-caption-bold text-muted-foreground uppercase">
-                            <th class="px-6 py-3">Status Aset</th>
-                            <th class="px-6 py-3">Model / Deskripsi</th>
-                            <th class="px-6 py-3 text-center">Serial Number</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-body-small divide-y divide-border">
-                        <tr>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 rounded-md bg-red-50 text-primary text-[10px] font-bold uppercase">Laptop Baru</span>
-                            </td>
-                            <td class="px-6 py-4 font-bold text-foreground">Unit Inventaris Universitas</td>
-                            <td class="px-6 py-4 text-center font-mono font-bold text-primary tracking-wider"><%= user.sn_baru %></td>
-                        </tr>
-                        <tr class="bg-muted/30 text-muted-foreground">
-                            <td class="px-6 py-4 italic">Laptop Lama (Return)</td>
-                            <td class="px-6 py-4 italic"><%= user.model_lama %></td>
-                            <td class="px-6 py-4 text-center font-mono italic uppercase"><%= user.sn_lama %></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="mb-10 pt-4 border-t border-dashed border-border">
-            <h2 class="text-h6 mb-4">Kelengkapan Perangkat</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex items-center gap-3 p-4 rounded-lg bg-white border border-border shadow-sm">
-                    <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded border-[1.5px] border-primary bg-primary">
-                        <svg class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-body-small-bold leading-tight font-bold">Charger Adapter</p>
-                        <p class="text-pixie text-muted-foreground uppercase tracking-wider">Kondisi: Lengkap & Berfungsi</p>
-                    </div>
+                <div>
+                    <span class="block text-xs text-[#8c8c8c] mb-0.5">Laptop Lama (Diserahkan):</span>
+                    <span class="font-medium text-[#595959]"><%= user.model_lama %></span>
+                    <span class="text-xs font-mono bg-white px-1.5 py-0.5 border border-[#d9d9d9] rounded text-[#595959] ml-1"><%= user.sn_lama %></span>
                 </div>
-
-                <div class="flex items-center gap-3 p-4 rounded-lg bg-white border border-border shadow-sm">
-                    <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded border-[1.5px] border-primary bg-primary">
-                        <svg class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-body-small-bold leading-tight font-bold">Tas Laptop</p>
-                        <p class="text-pixie text-muted-foreground uppercase tracking-wider">Kondisi: Sleeve Universitas</p>
-                    </div>
+                
+                <% if (items && items.length > 0) { %>
+                <div>
+                    <span class="block text-xs text-[#8c8c8c] mb-0.5">Kelengkapan Lama Diserahkan:</span>
+                    <span class="font-medium text-[#595959]"><%= items.join(', ') %></span>
                 </div>
+                <% } %>
             </div>
         </div>
 
-        <div class="bg-[#fafbee] p-5 rounded-lg border border-[#c2d43d]/30 mb-10">
-            <p class="text-body-small italic text-[#5b6416] leading-relaxed">
-                "Saya menyatakan telah menerima perangkat beserta kelengkapannya dalam kondisi baik. Saya bertanggung jawab penuh atas penggunaan dan pemeliharaan aset sesuai kebijakan TI Universitas."
-            </p>
-        </div>
+        <a href="/" class="inline-flex h-12 items-center justify-center rounded-lg bg-[#e62129] text-white text-sm font-bold transition-all hover:bg-[#ca161c] shadow-md shadow-red-200 uppercase tracking-wide w-full">
+            Kembali ke Beranda
+        </a>
 
-        <div class="flex justify-end">
-            <div class="text-center w-64">
-                <p class="text-caption-bold text-muted-foreground uppercase mb-2">Pihak Penerima,</p>
-                <div class="h-24 flex items-center justify-center relative border border-dashed border-border rounded-lg mb-2">
-                    <span class="absolute text-[32px] font-black text-gray-100 uppercase -rotate-12 select-none">VERIFIED</span>
-                    <img src="<%= user.signature %>" alt="TTD" class="relative z-10 h-20 grayscale brightness-90">
-                </div>
-                <p class="text-body-small font-bold border-t border-foreground pt-1">( <%= user.nama %> )</p>
-                <p class="text-[10px] text-muted-foreground uppercase mt-1">NIP: <%= user.nip %></p>
-            </div>
-        </div>
-
-        <div class="mt-20 text-center border-t border-border pt-4">
-            <p class="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Dokumen Inventaris Sah - ICT Universitas Division</p>
-        </div>
     </div>
 
 </body>

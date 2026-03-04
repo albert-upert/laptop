@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Manajerial Distribusi Laptop - ICT Universitas</title>
+    <title>Laporan Manajerial Distribusi Laptop - TIK Universitas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -12,16 +12,78 @@
         .card-stats:hover { transform: translateY(-5px); }
         .stat-icon { font-size: 2rem; opacity: 0.3; }
         
-        /* Pengaturan Cetak */
-        @media print {
-            .no-print { display: none !important; }
-            body { background-color: white; }
-            .report-card { box-shadow: none; border: none; padding: 0; }
-            .table-dark { background-color: #343a40 !important; color: white !important; }
-        }
+        /* =========================================
+   PENGATURAN KHUSUS UNTUK CETAK PDF / PRINTER
+   ========================================= */
 
-        .bg-signed { background-color: #f0fdf4 !important; } /* Hijau sangat muda untuk data selesai */
-        code { color: #d63384; font-weight: bold; }
+@media screen {
+    .print-header { display: none; }
+}
+
+@media print {
+    /* 1. MENGEMBALIKAN WARNA (Mengalahkan filter hitam-putih browser) */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 2. PENGATURAN KERTAS A4 LANDSCAPE */
+    @page {
+        size: A4 landscape;
+        margin: 15mm 20mm;
+    }
+
+    /* 3. MENGHILANGKAN SCROLLBAR (DRAGSLIDE) BAWAAN BOOTSTRAP */
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    /* 4. MEMASTIKAN LEBAR CONTAINER PAS 100% DENGAN KERTAS */
+    .container-fluid, .table-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 5. MEMAKSA TABEL MENGIKUTI LEBAR KERTAS & TIDAK MELEBAR KELUAR */
+    table {
+        table-layout: fixed !important; 
+        width: 100% !important;
+        page-break-inside: auto; /* Mengizinkan tabel pindah halaman */
+    }
+
+    /* 6. MENCEGAH BARIS TERBELAH & MENGULANG HEADER DI HALAMAN BARU */
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto;
+    }
+    thead {
+        display: table-header-group !important;
+    }
+
+    /* 7. MEMOTONG TEKS PANJANG (SEPERTI SERIAL NUMBER) AGAR TURUN KE BAWAH */
+    td, th {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    /* 8. MENAMPILKAN KOP SURAT & MENYEMBUNYIKAN TOMBOL SAAT DICETAK */
+    .print-header { 
+        display: block !important; 
+        text-align: center; 
+        margin-bottom: 20px; 
+        border-bottom: 2px solid #e62129;
+        padding-bottom: 10px;
+    }
+    .d-print-none {
+        display: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -31,15 +93,19 @@
         <a href="/admin" class="btn btn-outline-secondary btn-sm">
             &larr; Kembali ke Dashboard Admin
         </a>
-        <button onclick="window.print()" class="btn btn-primary shadow-sm">
-            Cetak Laporan Resmi (PDF)
+        <button onclick="window.print()" class="btn btn-danger fw-bold shadow-sm px-4 d-print-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill me-2 mb-1" viewBox="0 0 16 16">
+                <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+                <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+            </svg>
+            Cetak Laporan Resmi
         </button>
     </div>
 
     <div class="report-card">
         <div class="text-center mb-5">
             <h2 class="fw-bold mb-1">LAPORAN REKAPITULASI DISTRIBUSI LAPTOP</h2>
-            <p class="text-muted uppercase mb-0">Divisi Teknologi Informasi dan Komunikasi (ICT) Universitas</p>
+            <p class="text-muted uppercase mb-0">Divisi Teknologi Informasi dan Komunikasi (TIK) Universitas</p>
             <div style="height: 3px; width: 60px; background: #0d6efd; margin: 15px auto;"></div>
         </div>
 
@@ -77,63 +143,94 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead class="table-dark text-center">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>Waktu Input</th>
-                        <th>Karyawan (NIP)</th>
-                        <th>Model Perangkat</th>
-                        <th>SN Lama</th>
-                        <th>SN Baru</th>
-                        <th>Status</th>
-                        <th class="no-print">Dokumen</th>
+                        <th width="15%">Pegawai</th>
+                        <th width="13%">Waktu Transaksi</th>
+                        <th width="17%">Perangkat Lama</th>
+                        <th width="15%">Kelengkapan Lama</th> 
+                        <th width="15%">Perangkat Baru</th>
+                        <th width="13%" class="text-center">Status</th>
+                        <th width="12%" class="text-center">Dokumen BAST</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (transactions.length === 0) { %>
-                        <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">Belum ada data distribusi tercatat.</td>
-                        </tr>
-                    <% } %>
+        <% transactions.forEach(row => { %>
+        <tr>
+            <td>
+                <div class="fw-bold"><%= row.nama %></div>
+                <div class="text-muted small" style="font-size: 10px;">NIP: <%= row.nip %></div>
+            </td>
 
-                    <% transactions.forEach((row, index) => { %>
-                    <tr class="<%= row.status === 'Signed' ? 'bg-signed' : '' %>">
-                        <td class="text-center"><%= index + 1 %></td>
-                        <td><small><%= row.waktu_lokal %></small></td>
-                        <td>
-                            <div class="fw-bold"><%= row.nama %></div>
-                            <small class="text-muted"><%= row.nip %></small>
-                        </td>
-                        <td><%= row.model_lama %></td>
-                        <td><code><%= row.sn_lama %></code></td>
-                        <td><code><%= row.sn_baru %></code></td>
-                        <td class="text-center">
-                            <% if (row.status === 'Signed') { %>
-                                <span class="badge bg-success text-white">Signed</span>
-                            <% } else { %>
-                                <span class="badge bg-warning text-dark">Pending TTD</span>
-                            <% } %>
-                        </td>
-                        <td class="text-center no-print">
-                            <% if (row.status === 'Signed') { %>
-                                <a href="/preview-bast/<%= row.nip %>" class="btn btn-sm btn-info text-white fw-bold">
-                                    Lihat BAST
-                                </a>
-                            <% } else { %>
-                                <span class="text-muted small">N/A</span>
-                            <% } %>
-                        </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+            <td>
+                <div class="text-dark small fw-semibold">
+                    <%= row.tanggal_terima ? new Date(row.tanggal_terima).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-' %>
+                </div>
+            </td>
+
+            <td>
+                <div class="text-dark fw-semibold small"><%= row.model_lama || '-' %></div>
+                <div class="text-muted small" style="font-size: 11px;">SN: <%= row.sn_lama || 'Belum diinput' %></div>
+            </td>
+
+            <td>
+                <div class="d-flex flex-column gap-1" style="font-size: 11px;">
+                    <div>
+                        <span class="text-muted">Charger:</span> 
+                        <% if (row.charger_is_exist === 1) { %>
+                            <span class="badge bg-success" style="font-size: 9px;">Ada</span>
+                        <% } else { %>
+                            <span class="badge bg-danger" style="font-size: 9px;">Tidak</span>
+                        <% } %>
+                    </div>
+                    <div>
+                        <span class="text-muted">Tas Laptop:</span> 
+                        <% if (row.bag_is_exist === 1) { %>
+                            <span class="badge bg-success" style="font-size: 9px;">Ada</span>
+                        <% } else { %>
+                            <span class="badge bg-danger" style="font-size: 9px;">Tidak</span>
+                        <% } %>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="text-dark fw-semibold small"><%= row.model_baru || '-' %></div>
+                <div class="text-primary small fw-bold" style="font-size: 11px;">SN: <%= row.sn_baru || 'Belum diinput' %></div>
+            </td>
+
+            <td class="text-center">
+                <% if (row.status === 'Signed') { %>
+                    <span class="badge bg-success w-100 py-2">Selesai (TTD)</span>
+                <% } else if (row.status === 'Completed') { %>
+                    <span class="badge bg-warning text-dark w-100 py-2">Tunggu TTD</span>
+                <% } else if (row.status === 'Verified_by_User') { %>
+                    <span class="badge bg-info text-dark w-100 py-2">Tunggu Approve</span>
+                <% } else { %>
+                    <span class="badge bg-secondary w-100 py-2"><%= row.status %></span>
+                <% } %>
+            </td>
+
+            <td class="text-center">
+                <% if (row.status === 'Signed') { %>
+                    <a href="/download-pdf/<%= row.nip %>" class="btn btn-sm btn-danger text-white fw-bold w-100" style="font-size: 10px;">
+                        Download
+                    </a>
+                <% } else { %>
+                    <span class="text-muted" style="font-size: 10px;">Belum Tersedia</span>
+                <% } %>
+            </td>
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
         </div>
 
         <div class="mt-5 row text-center">
             <div class="col-8"></div>
             <div class="col-4">
-                <p class="mb-5">Mengetahui,<br><strong>Manager ICT Division</strong></p>
+                <p class="mb-5">Mengetahui,<br><strong>Manager TIK Division</strong></p>
                 <br>
                 <p class="mt-4 border-top d-inline-block px-4">( Meredita Susanty )</p>
             </div>

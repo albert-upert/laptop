@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Verifikasi ICT - Universitas</title>
+    <title>Panel Verifikasi TIK - Universitas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,11 +11,11 @@
         .table-container { background: white; padding: 30px; border-radius: 12px; border: 1px solid #d9d9d9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .table thead { background: linear-gradient(to bottom, #ffffff, #ffeced); border-bottom: 2px solid #e62129; }
         .table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #8c8c8c; padding: 15px; }
-        .input-ict { border: 1px solid #d9d9d9; font-size: 12px; }
-        .input-ict:focus { border-color: #e62129; box-shadow: 0 0 0 3px rgba(230, 33, 41, 0.1); outline: none; }
-        .btn-primary-ict { background-color: #e62129; border: none; font-weight: 700; font-size: 11px; transition: 0.3s; }
-        .btn-primary-ict:hover:not(:disabled) { background-color: #ca161c; }
-        .btn-primary-ict:disabled { background-color: #f5a3a5; cursor: not-allowed; }
+        .input-TIK { border: 1px solid #d9d9d9; font-size: 12px; }
+        .input-TIK:focus { border-color: #e62129; box-shadow: 0 0 0 3px rgba(230, 33, 41, 0.1); outline: none; }
+        .btn-primary-TIK { background-color: #e62129; border: none; font-weight: 700; font-size: 11px; transition: 0.3s; }
+        .btn-primary-TIK:hover:not(:disabled) { background-color: #ca161c; }
+        .btn-primary-TIK:disabled { background-color: #f5a3a5; cursor: not-allowed; }
     </style>
 </head>
 <body class="py-5">
@@ -24,9 +24,12 @@
             <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <div>
                     <h2 class="fw-bold text-dark mb-1">Manajemen Pengambilan Aset</h2>
-                    <p class="text-muted small mb-0 uppercase tracking-widest">ICT Universitas Division - Verifikasi Fisik</p>
+                    <p class="text-muted small mb-0 uppercase tracking-widest">TIK Universitas Division - Verifikasi Fisik</p>
                 </div>
-                <a href="/manager-report" class="btn btn-outline-secondary btn-sm px-4 fw-bold">Laporan</a>
+                <div class="d-flex gap-2">
+                    <a href="/manager-report" class="btn btn-outline-secondary btn-sm px-4 fw-bold">Laporan</a>
+                    <a href="/" class="btn btn-outline-danger btn-sm px-4 fw-bold">Keluar</a>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -65,7 +68,7 @@
                             </td>
 
                             <td>
-                                <select name="model_baru" form="approve-<%= row.id %>" class="form-select form-select-sm input-ict fw-bold" required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                                <select name="model_baru" form="approve-<%= row.id %>" class="form-select form-select-sm input-TIK fw-bold" required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
                                     <option value="" disabled selected>Pilih Model...</option>
                                     <option value="MacBook Pro M3 14-inch">MacBook Pro M3 14-inch</option>
                                     <option value="MacBook Air M3 13-inch">MacBook Air M3 13-inch</option>
@@ -73,14 +76,14 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" name="sn_lama" form="approve-<%= row.id %>" class="form-control form-control-sm input-ict fw-bold" value="<%= row.sn_lama %>" required <%= !row.ml_is_handed_over ? 'readonly' : '' %>>
+                                <input type="text" name="sn_lama" form="approve-<%= row.id %>" class="form-control form-control-sm input-TIK fw-bold" value="<%= row.sn_lama %>" required <%= !row.ml_is_handed_over ? 'readonly' : '' %>>
                             </td>
                             <td>
-                                <input type="text" name="sn_baru" form="approve-<%= row.id %>" class="form-control form-control-sm input-ict fw-bold text-primary" placeholder="SN Baru..." required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                                <input type="text" name="sn_baru" form="approve-<%= row.id %>" class="form-control form-control-sm input-TIK fw-bold text-primary" placeholder="SN Baru..." required <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
                             </td>
                             <td class="text-center">
                                 <form id="approve-<%= row.id %>" action="/approve/<%= row.id %>" method="POST">
-                                    <button type="submit" class="btn btn-primary-ict text-white w-100 py-2 shadow-sm uppercase" <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
+                                    <button type="submit" class="btn btn-primary-TIK text-white w-100 py-2 shadow-sm uppercase" <%= !row.ml_is_handed_over ? 'disabled' : '' %>>
                                         Approve
                                     </button>
                                 </form>
