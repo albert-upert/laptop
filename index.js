@@ -1345,7 +1345,6 @@ app.post('/approve/:id', (req, res) => {
     } catch (e) { doc.text('(Tanda Tangan Manager)', 100, sigY + 40); }
     doc.fillColor('#262626').text('__________________________', 50, sigY + 80, { width: 250, align: 'center' });
     doc.text('Head of TIK Division', 50, sigY + 95, { width: 250, align: 'center' });
-
     // Kolom Kanan: Karyawan (Tanda Tangan Digital dari DB)
     doc.fillColor('#8c8c8c').text('KARYAWAN / PENERIMA,', 300, sigY, { width: 250, align: 'center' });
     if (data.signature) {
