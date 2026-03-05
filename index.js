@@ -59,7 +59,7 @@ console.log("Jumlah data saat ini di database:", checkData.count);
 if (checkData.count === 0) {
     const insert = db.prepare("INSERT INTO transaksi (nama, nip, email, role_is_admin) VALUES (?, ?, ?, ?)");
     insert.run("admin", "admin123", "TIK@universitaspertamina.ac.id", "1");
-    insert.run("nabil", "1238795", "albert.ltp@universitaspertamina.ac.id", "0");
+    insert.run("nabil", "1238795", "wawakaw@an.asdee", "0");
     
     insert.run("Dr. Eng. Paramita Jaya Ratri, S.Si, M.Si", "116009", "paramita.jr@universitaspertamina.ac.id", "0");
     insert.run("Meredita Susanty, M.Sc", "116020", "meredita.susanty@universitaspertamina.ac.id", "0");
@@ -389,56 +389,64 @@ app.post('/verifikasi-admin', (req, res) => {
 
 // Route: Simpan SN Lama (Update status menjadi 'Verified_by_User')
 app.post('/simpan-sn-lama/:id', (req, res) => {
-    const { model_lama, sn_lama, setuju_hak_milik } = req.body;
+    const { setuju_hak_milik } = req.body;
     const { id } = req.params;
 
     if (!setuju_hak_milik) {
         return res.send("Anda harus menyetujui syarat pengalihan hak milik.");
     }
 
-    // UPDATE Database: Mengupdate model_lama dan sn_lama berdasarkan input user
-    db.prepare("UPDATE transaksi SET model_lama = ?, sn_lama = ?, status = 'Verified_by_User' WHERE id = ?")
-      .run(model_lama, sn_lama, id); //
-      
-    // Ganti res.send lama dengan template yang didesain ulang
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="id">
-        <head>
-            <meta charset="UTF-8">
-            <script src="https://cdn.tailwindcss.com"></script>
-            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-            <style>
-                .text-h3 { font-family: 'Poppins'; font-size: 36px; font-weight: 700; line-height: 46px; } /* */
-                .text-body-medium { font-family: 'Poppins'; font-size: 16px; font-weight: 400; line-height: 24px; } /* */
-            </style>
-        </head>
-        <body class="bg-[#fafafa] font-sans min-h-screen flex items-center justify-center p-6">
-            <div class="max-w-md w-full bg-white border border-[#d9d9d9] rounded-xl shadow-sm p-10 text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-                    <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
+    try {
+        const dataUser = db.prepare("SELECT sn_lama FROM transaksi WHERE id = ?").get(id);
 
-                <h1 class="text-h3 text-green-600 mb-4">Konfirmasi Berhasil!</h1>
-                
-                <div class="space-y-4 mb-8">
-                    <p class="text-body-medium text-[#595959]">
-                        Serial Number <strong class="text-[#262626] font-bold">${sn_lama}</strong> telah berhasil direkam ke dalam sistem.
-                    </p>
-                    <p class="text-body-medium text-[#595959]">
-                        Langkah selanjutnya, silakan datang ke <span class="font-bold text-primary">Loket TIK</span> untuk proses serah terima fisik laptop baru Anda.
-                    </p>
-                </div>
+        if (!dataUser) {
+            return res.status(404).send("Data transaksi tidak ditemukan.");
+        }
 
-                <a href="/" class="inline-flex h-10 px-6 items-center justify-center rounded-lg bg-[#e62129] text-white text-sm font-bold transition-all hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md shadow-red-100 uppercase w-full">
-                    Kembali ke Beranda
-                </a>
-            </div>
-        </body>
-        </html>
-    `);
+        db.prepare("UPDATE transaksi SET status = 'Verified_by_User' WHERE id = ?").run(id); 
+        
+        res.send(`
+            <!DOCTYPE html>
+            <html lang="id">
+            <head>
+                <meta charset="UTF-8">
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                <style>
+                    .text-h3 { font-family: 'Poppins'; font-size: 36px; font-weight: 700; line-height: 46px; } 
+                    .text-body-medium { font-family: 'Poppins'; font-size: 16px; font-weight: 400; line-height: 24px; } 
+                </style>
+            </head>
+            <body class="bg-[#fafafa] font-sans min-h-screen flex items-center justify-center p-6">
+                <div class="max-w-md w-full bg-white border border-[#d9d9d9] rounded-xl shadow-sm p-10 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                        <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+
+                    <h1 class="text-h3 text-green-600 mb-4">Konfirmasi Berhasil!</h1>
+                    
+                    <div class="space-y-4 mb-8">
+                        <p class="text-body-medium text-[#595959]">
+                            Data perangkat dengan Serial Number <strong class="text-[#262626] font-bold">${dataUser.sn_lama || '-'}</strong> telah berhasil diverifikasi dalam sistem.
+                        </p>
+                        <p class="text-body-medium text-[#595959]">
+                            Langkah selanjutnya, silakan datang ke <span class="font-bold text-[#e62129]">Loket TIK</span> untuk proses serah terima fisik laptop baru Anda.
+                        </p>
+                    </div>
+
+                    <a href="/" class="inline-flex h-10 px-6 items-center justify-center rounded-lg bg-[#e62129] text-white text-sm font-bold transition-all hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md shadow-red-100 uppercase w-full">
+                        Kembali ke Beranda
+                    </a>
+                </div>
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        console.error("Error konfirmasi user:", error);
+        res.status(500).send("Terjadi kesalahan sistem saat mencoba memverifikasi data.");
+    }
 });
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -457,7 +465,6 @@ app.post('/submit-karyawan', (req, res) => {
     res.send("<h2>Data Terkirim!</h2><p>Silakan ke loket TIK untuk verifikasi fisik laptop.</p><a href='/'>Kembali</a>");
 });
 
-
 // Route: Dashboard Admin TIK
 app.get('/admin', (req, res) => {
     // Ubah kueri ini agar mengambil status yang sudah diinput karyawan
@@ -466,11 +473,16 @@ app.get('/admin', (req, res) => {
 });
 
 // Route: Konfirmasi Laptop Lama Telah Diserahkan
-app.post('/admin/konfirmasi-lama/:id', (req, res) => {
+app.post('/admin/konfirmasi-lama/:id', async (req, res) => { 
     const { id } = req.params;
 
     try {
-        // Update status ml_is_handed_over dan catat waktu saat ini
+        const dataUser = db.prepare("SELECT * FROM transaksi WHERE id = ?").get(id);
+
+        if (!dataUser) {
+            return res.status(404).send("Data transaksi tidak ditemukan.");
+        }
+
         db.prepare(`
             UPDATE transaksi 
             SET ml_is_handed_over = 1, 
@@ -478,14 +490,42 @@ app.post('/admin/konfirmasi-lama/:id', (req, res) => {
             WHERE id = ?
         `).run(id);
 
-        // Refresh halaman admin agar perubahan status terlihat
+        if (dataUser.email) {
+            const mailOptions = {
+                from: '"TIK Universitas" <pertamapertamax@gmail.com>',
+                to: dataUser.email,
+                subject: 'Konfirmasi Serah Terima Perangkat Lama - TIK Universitas',
+                html: `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; max-width: 600px; border: 1px solid #d9d9d9; border-radius: 10px;">
+                        <h2 style="color: #e62129; margin-bottom: 5px;">Konfirmasi Laptop Diterima</h2>
+                        <hr style="border: none; border-top: 2px solid #e62129; margin-bottom: 20px;">
+                        
+                        <p>Halo <b>${dataUser.nama}</b>,</p>
+                        <p>Email ini menginformasikan bahwa Laptop lama Anda dengan rincian berikut:</p>
+                        
+                        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            <p style="margin: 0;"><b>Model Perangkat:</b> ${dataUser.model_lama || '-'}</p>
+                            <p style="margin: 5px 0 0 0;"><b>Serial Number:</b> ${dataUser.sn_lama || '-'}</p>
+                        </div>                       
+                        <p>Telah <b>berhasil diserahkan dan diverifikasi</b> oleh tim TIK Universitas.</p>
+
+                        <p><b>Divisi Teknologi Informasi dan Komunikasi</b><br>Universitas</p>
+                    </div>
+                `
+            };
+            await transporter.sendMail(mailOptions);
+            console.log(`Email konfirmasi berhasil dikirim ke: ${dataUser.email}`);
+        } else {
+            console.log(`Peringatan: User ${dataUser.nama} tidak memiliki alamat email. Notifikasi dilewati.`);
+        }
+
         res.redirect('/admin'); 
+
     } catch (error) {
-        console.error("Gagal mengonfirmasi laptop lama:", error);
-        res.status(500).send("Terjadi kesalahan sistem saat update data.");
+        console.error("Gagal mengonfirmasi laptop lama atau mengirim email:", error);
+        res.status(500).send("Terjadi kesalahan sistem saat memproses data.");
     }
 });
-
 
 const PORT = 3000;
 app.listen(PORT, () => {
@@ -536,7 +576,6 @@ const getIndoDateString = (dateObj) => {
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
 };
-
 // Route utama
 app.post('/save-signature/:id', async (req, res) => {
     const { signature_data, item_charger, item_tas, item_mouse } = req.body;
@@ -1150,5 +1189,139 @@ app.get('/download-pdf/:nip', (req, res) => {
     } catch (error) {
         console.error("Error saat generate PDF untuk Admin:", error);
         res.status(500).send("Terjadi kesalahan sistem saat mencoba membuat PDF BAST.");
+    }
+});
+
+app.get('/download-laporan-pdf', (req, res) => {
+    try {
+
+        const transactions = db.prepare("SELECT * FROM transaksi WHERE role_is_admin = 0 ORDER BY tanggal_terima DESC").all();
+
+
+        const selesai = transactions.filter(t => t.status === 'Signed').length;
+
+        const pending = transactions.filter(t => t.status !== 'Signed').length;
+
+        const totalAntrean = transactions.length;
+
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 40 });
+
+        res.setHeader('Content-disposition', `attachment; filename=Laporan_Distribusi_Laptop_${Date.now()}.pdf`);
+        res.setHeader('Content-type', 'application/pdf');
+
+        doc.pipe(res);
+
+        doc.font('Helvetica-Bold').fontSize(16).text('LAPORAN REKAPITULASI DISTRIBUSI LAPTOP', { align: 'center' });
+        doc.font('Helvetica').fontSize(11).fillColor('#595959').text('Divisi Teknologi Informasi dan Komunikasi (TIK) Universitas', { align: 'center' });
+        
+        doc.moveDown(1.5);
+
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#262626');
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#262626');
+        doc.text(`Total Selesai Terdistribusi (BAST): ${selesai} Unit`, { align: 'center' });
+
+        doc.font('Helvetica').fontSize(9).fillColor('#595959');
+        doc.text(`Dalam Proses (Pending): ${pending} Unit   |   Total Data Pegawai: ${totalAntrean} Unit`, { align: 'center' });
+        doc.moveDown(2);
+
+        let tableTop = doc.y;
+        
+        const drawTableHeader = (yPos) => {
+            doc.font('Helvetica-Bold').fontSize(9).fillColor('#8c8c8c');
+            doc.text('NO', 40, yPos);
+            doc.text('PEGAWAI', 70, yPos);
+            doc.text('WAKTU TRANSAKSI', 210, yPos);
+            doc.text('PERANGKAT LAMA', 320, yPos);
+            doc.text('KELENGKAPAN', 480, yPos);
+            doc.text('PERANGKAT BARU', 580, yPos);
+            doc.text('STATUS', 720, yPos);
+            
+            // Garis bawah header
+            doc.moveTo(40, yPos + 15).lineTo(800, yPos + 15).lineWidth(1).strokeColor('#e62129').stroke();
+        };
+
+        drawTableHeader(tableTop);
+        let y = tableTop + 25;
+
+        transactions.forEach((row, i) => {
+            
+            doc.font('Helvetica-Bold').fontSize(9);
+            const namaHeight = doc.heightOfString(row.nama || '-', { width: 130 });
+            const lamaHeight = doc.heightOfString(row.model_lama || '-', { width: 150 });
+            const baruHeight = doc.heightOfString(row.model_baru || '-', { width: 130 });
+
+            const maxTextHeight = Math.max(namaHeight, lamaHeight, baruHeight);
+
+            const rowHeight = maxTextHeight + 27; 
+
+            if (y + rowHeight > 520) {
+                doc.addPage({ size: 'A4', layout: 'landscape', margin: 40 });
+                y = 40;
+                drawTableHeader(y);
+                y += 25;
+            }
+
+            doc.font('Helvetica').fontSize(9).fillColor('#262626');
+            doc.text((i + 1).toString(), 40, y);
+
+            doc.font('Helvetica-Bold').text(row.nama || '-', 70, y, { width: 130 });
+            doc.font('Helvetica').fontSize(8).fillColor('#595959').text(`NIP: ${row.nip}`, 70, y + namaHeight + 2);
+
+            doc.fontSize(9).fillColor('#262626');
+            let dateStr = row.tanggal_terima ? new Date(row.tanggal_terima).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : '-';
+            doc.text(dateStr, 210, y, { width: 100 });
+
+            doc.font('Helvetica-Bold').text(row.model_lama || '-', 320, y, { width: 150 });
+            doc.font('Helvetica').fontSize(8).fillColor('#595959').text(`SN: ${row.sn_lama || '-'}`, 320, y + lamaHeight + 2);
+
+            doc.fontSize(9).fillColor('#262626');
+            let charger = row.charger_is_exist === 1 ? 'Ada' : 'Tidak';
+            let tas = row.bag_is_exist === 1 ? 'Ada' : 'Tidak';
+            doc.text(`Charger: ${charger}`, 480, y);
+            doc.text(`Tas: ${tas}`, 480, y + 12);
+
+            doc.font('Helvetica-Bold').text(row.model_baru || '-', 580, y, { width: 130 });
+            doc.font('Helvetica').fontSize(8).fillColor('#0d6efd').text(`SN: ${row.sn_baru || '-'}`, 580, y + baruHeight + 2);
+
+            doc.fontSize(9).fillColor('#262626');
+            let statusText = row.status === 'Signed' ? 'Selesai (TTD)' : (row.status === 'Completed' ? 'Tunggu TTD' : row.status);
+            doc.text(statusText, 720, y, { width: 80 });
+
+            y += rowHeight - 10; 
+            doc.moveTo(40, y).lineTo(800, y).lineWidth(0.5).strokeColor('#e0e0e0').stroke();
+
+            y += 10;
+        });
+
+        doc.moveDown(3);
+        let finalY = doc.y;
+        
+        if(finalY > 450) { 
+            doc.addPage({ size: 'A4', layout: 'landscape', margin: 40 }); 
+            finalY = 50; 
+        }
+
+        doc.font('Helvetica').fontSize(10).fillColor('#262626');
+        doc.text('Mengetahui,', 600, finalY, { align: 'center', width: 150 });
+        doc.font('Helvetica-Bold').text('Manager TIK Division', 600, finalY + 15, { align: 'center', width: 150 });
+
+        const fs = require('fs');
+        const path = require('path');
+        const ttdManajerPath = path.join(__dirname, 'assets', 'template', 'image', 'ttd', 'ttdBuMeredita.png');
+        
+        if (fs.existsSync(ttdManajerPath)) {
+            doc.image(ttdManajerPath, 615, finalY + 25, { width: 120 });
+        } else {
+            doc.moveTo(600, finalY + 75).lineTo(750, finalY + 75).strokeColor('#262626').stroke();
+        }
+
+        doc.font('Helvetica-Bold').text('Meredita Susanty', 600, finalY + 80, { align: 'center', width: 150, underline: true });
+
+        doc.end();
+
+    } catch (error) {
+        console.error("Gagal membuat PDF Laporan:", error);
+        res.status(500).send("Terjadi kesalahan sistem saat generate PDF Laporan.");
     }
 });

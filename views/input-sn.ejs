@@ -32,7 +32,7 @@
         
         <div class="p-6 border-b border-border bg-gradient-to-b from-white to-[#ffeced]">
             <h1 class="text-h5 text-primary uppercase">Konfirmasi Data Aset</h1>
-            <p class="text-caption-bold text-muted-foreground tracking-widest mt-1 uppercase">Input Informasi Perangkat Lama</p>
+            <p class="text-caption-bold text-muted-foreground tracking-widest mt-1 uppercase">Verifikasi Perangkat Lama</p>
         </div>
 
         <div class="p-8 space-y-8">
@@ -52,30 +52,19 @@
 
             <form action="/simpan-sn-lama/<%= user.id %>" method="POST" class="space-y-6">
                 
+                <input type="hidden" name="nip" value="<%= user.nip %>">
+
                 <div class="flex flex-col gap-1.5">
                     <label class="text-body-small-bold">Model Laptop LAMA:</label>
-                    <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white focus-within:border-primary">
-                        <input 
-                            type="text" 
-                            name="model_lama" 
-                            placeholder="Contoh: MacBook Air 2017 / Lenovo L480" 
-                            required 
-                            class="px-3 py-2 text-sm h-full flex-1 outline-none font-medium uppercase placeholder:normal-case"
-                        >
+                    <div class="flex min-h-[40px] w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700 uppercase">
+                        <%= user.model_lama || 'Belum ada data model' %>
                     </div>
-                    <span class="text-[10px] text-muted-foreground">Ketikan merk dan tipe laptop yang Anda gunakan sekarang.</span>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
                     <label class="text-body-small-bold">Serial Number Laptop LAMA:</label>
-                    <div class="flex h-10 w-full items-center overflow-hidden rounded-lg border border-input bg-white focus-within:border-primary">
-                        <input 
-                            type="text" 
-                            name="sn_lama" 
-                            placeholder="Contoh: SN12345678" 
-                            required 
-                            class="px-3 py-2 text-sm h-full flex-1 outline-none font-medium uppercase placeholder:normal-case"
-                        >
+                    <div class="flex min-h-[40px] w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        <%= user.sn_lama || 'Belum ada data SN' %>
                     </div>
                 </div>
 
@@ -90,13 +79,13 @@
                             </div>
                         </div>
                         <label for="agree" class="text-body-small text-[#595959] cursor-pointer">
-                            Saya setuju menerima laptop lama menjadi hak milik pribadi dan membebaskan Universitas dari biaya pemeliharaan.
+                            Saya telah memverifikasi data di atas dan setuju menerima laptop lama menjadi hak milik pribadi, serta membebaskan Universitas dari biaya pemeliharaan.
                         </label>
                     </div>
                 </div>
 
                 <button type="submit" class="h-10 w-full bg-primary text-white font-bold rounded-lg hover:bg-[#ef6c70] active:bg-[#a51217] shadow-md uppercase transition-all">
-                    Konfirmasi & Simpan
+                    Konfirmasi & Lanjutkan
                 </button>
             </form>
         </div>
