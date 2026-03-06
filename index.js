@@ -52,6 +52,8 @@ db.exec(`
     ml_is_handed_over BOOLEAN DEFAULT 0,
     no_surat_lama TEXT,
     no_surat_baru TEXT,
+    no_lama INTEGER UNIQUE,
+    no_baru INTEGER UNIQUE,
     tanggal_pengajuan DATETIME DEFAULT CURRENT_TIMESTAMP,
     tanggal_serah DATETIME,
     tanggal_terima DATETIME
@@ -65,8 +67,8 @@ if (checkData.count === 0) {
 
     const insert = db.prepare(`
     INSERT INTO transaksi 
-    (nama, nip, email, role_is_admin, sn_lama, model_lama)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (nama, nip, email, role_is_admin, sn_lama, model_lama, no_lama, no_baru)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     data.forEach(row => {
@@ -76,7 +78,9 @@ if (checkData.count === 0) {
             row.email,
             row.role_is_admin ?? 0,
             row.serial_lama || "",
-            row.model_lama || ""
+            row.model_lama || "",
+            row.no_lama,
+            row.no_baru
         );
     });
 
@@ -110,26 +114,50 @@ app.post('/cek-karyawan', async (req, res) => {
                 db.prepare("UPDATE transaksi SET otp = ?, email = ? WHERE nip = ?").run(otpBaru, emailTujuan, nip);
 
                 const mailOptions = {
-                    from: '"TIK Universitas" <pertamapertamax@gmail.com>',
-                    to: emailTujuan,
-                    subject: 'Kode Verifikasi Distribusi Aset',
-                    html: `
-                        <div style="font-family: sans-serif; max-width: 500px; border: 1px solid #eee; padding: 20px;">
-                            <h2 style="color: #e62129;">Verifikasi Identitas</h2>
-                            <p>Halo <b>${data.nama}</b>,</p>
-                            <p>Gunakan kode OTP di bawah ini untuk melanjutkan verifikasi perangkat lama Anda:</p>
-                            <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333;">
-                                ${otpBaru}
-                            </div>
-                            <p style="font-size: 12px; color: #888; margin-top: 20px;">
-                                Kode ini rahasia. Jangan berikan kepada siapa pun, termasuk staf TIK.
-                            </p>
-                        </div>
-                    `
-                };
+                        from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
+                        to: emailTujuan,
+                        subject: `[ALVIN] Kode Verifikasi OTP - ${otpBaru}`,
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #eeeeee; border-radius: 10px; overflow: hidden;">
+                                <div style="background-color: #f8f9fa; padding: 15px; text-align: center; border-bottom: 3px solid #e62129;">
+                                    <h1 style="margin: 0; color: #262626; font-size: 22px;">ALVIN</h1>
+                                    <p style="margin: 0; color: #595959; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;">
+                                        Asset & Laptop Verification Inventory Network
+                                    </p>
+                                </div>
 
-                await transporter.sendMail(mailOptions);
-                return res.render('verifikasi-otp', { nip: nip });
+                                <div style="padding: 30px; color: #333333;">
+                                    <h2 style="color: #e62129; margin-top: 0; font-size: 18px;">Verifikasi Identitas</h2>
+                                    <p>Halo <b>${data.nama}</b>,</p>
+                                    <p>Terima kasih telah menggunakan layanan <b>ALVIN</b>. Gunakan kode OTP di bawah ini untuk melanjutkan verifikasi perangkat lama Anda:</p>
+                                    
+                                    <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #e62129; border-radius: 8px; margin: 20px 0;">
+                                        ${otpBaru}
+                                    </div>
+                                    
+                                    <p style="font-size: 12px; color: #8c8c8c;">
+                                        <b>PENTING:</b> Kode ini bersifat rahasia dan hanya berlaku untuk sesi ini. Jangan berikan kode ini kepada siapa pun, termasuk staf TIK Universitas Pertamina.
+                                    </p>
+
+                                    <div style="margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px; font-size: 13px;">
+                                        <p style="margin: 0;">Terima Kasih,</p>
+                                        <p style="margin: 0; font-weight: bold;">Fungsi TIK</p>
+                                        <p style="margin: 0;">Universitas Pertamina</p>
+                                    </div>
+                                </div>
+
+                                <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 11px; color: #8c8c8c;">
+                                    <p style="margin: 0;">
+                                        <a href="https://alvin.universitaspertamina.ac.id" style="color: #e62129; text-decoration: none; font-weight: bold;">ALVIN</a> 
+                                        | Asset Laptop Verification & Inventory
+                                    </p>
+                                </div>
+                            </div>
+                        `
+                    };
+
+                    await transporter.sendMail(mailOptions);
+                    return res.render('verifikasi-otp', { nip: nip });
 
             } 
             
@@ -349,24 +377,45 @@ app.post('/admin/konfirmasi-lama/:id', async (req, res) => {
 
         if (dataUser.email) {
             const mailOptions = {
-                from: '"TIK Universitas" <pertamapertamax@gmail.com>',
+                from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
                 to: dataUser.email,
-                subject: 'Konfirmasi Serah Terima Perangkat Lama - TIK Universitas',
+                subject: `[ALVIN] Konfirmasi Penerimaan Perangkat - ${dataUser.nama}`,
                 html: `
-                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; max-width: 600px; border: 1px solid #d9d9d9; border-radius: 10px;">
-                        <h2 style="color: #e62129; margin-bottom: 5px;">Konfirmasi Laptop Diterima</h2>
-                        <hr style="border: none; border-top: 2px solid #e62129; margin-bottom: 20px;">
-                        
-                        <p>Halo <b>${dataUser.nama}</b>,</p>
-                        <p>Email ini menginformasikan bahwa Laptop lama Anda dengan rincian berikut:</p>
-                        
-                        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                            <p style="margin: 0;"><b>Model Perangkat:</b> ${dataUser.model_lama || '-'}</p>
-                            <p style="margin: 5px 0 0 0;"><b>Serial Number:</b> ${dataUser.sn_lama || '-'}</p>
-                        </div>                       
-                        <p>Telah <b>berhasil diserahkan dan diverifikasi</b> oleh tim TIK Universitas.</p>
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eeeeee; border-radius: 10px; overflow: hidden;">
+                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-bottom: 3px solid #e62129;">
+                            <h1 style="margin: 0; color: #262626; font-size: 24px;">ALVIN</h1>
+                            <p style="margin: 0; color: #595959; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;">
+                                Asset & Laptop Verification Inventory Network
+                            </p>
+                        </div>
 
-                        <p><b>Divisi Teknologi Informasi dan Komunikasi</b><br>Universitas</p>
+                        <div style="padding: 30px; line-height: 1.6; color: #333333;">
+                            <h2 style="color: #e62129; margin-top: 0;">Konfirmasi Laptop Diterima</h2>
+                            
+                            <p>Halo <b>${dataUser.nama}</b>,</p>
+                            
+                            <p>Melalui website <b>ALVIN</b>, tim TIK mengonfirmasi bahwa perangkat lama Anda telah <b>berhasil diserahkan dan diverifikasi</b> secara fisik dengan rincian sebagai berikut:</p>
+                            
+                            <div style="background-color: #f9f9f9; border-left: 4px solid #e62129; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                                <p style="margin: 0;"><b>Model Perangkat:</b> ${dataUser.model_lama || '-'}</p>
+                                <p style="margin: 5px 0 0 0;"><b>Serial Number:</b> ${dataUser.sn_lama || '-'}</p>
+                            </div> 
+                            
+                            <p>Terima kasih. Silakan simpan email ini sebagai referensi bukti penyerahan fisik perangkat lama Anda.</p>
+                            
+                            <div style="margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px;">
+                                <p style="margin: 0;">Terima Kasih,</p>
+                                <p style="margin: 0; font-weight: bold;">Fungsi Teknologi Informasi dan Komunikasi</p>
+                                <p style="margin: 0;">Universitas Pertamina</p>
+                            </div>
+                        </div>
+
+                        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 11px; color: #8c8c8c;">
+                                    <p style="margin: 0;">
+                                        <a href="https://alvin.universitaspertamina.ac.id" style="color: #e62129; text-decoration: none; font-weight: bold;">ALVIN</a> 
+                                        | Asset Laptop Verification & Inventory
+                                    </p>
+                                </div>
                     </div>
                 `
             };
@@ -433,40 +482,31 @@ const getIndoDateString = (dateObj) => {
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
 };
+
 // Route utama
 app.post('/save-signature/:id', async (req, res) => {
-    const { signature_data, item_charger, item_tas, item_mouse } = req.body;
+    const { signature_data, item_charger, item_tas, item_mouse, no_lama, no_baru } = req.body;
     const { id } = req.params;
 
     const isChargerExist = item_charger ? 1 : 0;
     const isBagExist = item_tas ? 1 : 0;
 
-    console.log()
+    try {
 
-try {
-        const lastRecord = db.prepare(`
-            SELECT no_surat_lama FROM transaksi 
-            WHERE no_surat_lama IS NOT NULL 
-            ORDER BY tanggal_terima DESC LIMIT 1
-        `).get();
-
-        let nextBaseNumber;
-
-        if (!lastRecord || !lastRecord.no_surat_lama) {
-            nextBaseNumber = 13;
-        } else {
-            const match = lastRecord.no_surat_lama.match(/Nomor\s*:\s*(\d+)/);
-            const lastNumber = match ? parseInt(match[1]) : 12;
-            nextBaseNumber = lastNumber + 1; 
+        const dataNomor = db.prepare(
+  "SELECT no_baru, no_lama FROM transaksi WHERE id = ?"
+).get(id);
+        if (!dataNomor) {
+            return res.status(404).json({ message: "Data tidak ditemukan" });
         }
 
-        const seqNumber1 = nextBaseNumber;
-        const seqNumber2 = seqNumber1 + 1;
+        const sqbaru = dataNomor.no_baru;
+        const seqlama = dataNomor.no_lama;
 
         const today = new Date();
         
-        const noSuratBaru = `Nomor : ${seqNumber1}/UPER-WRS.3.2/BA/TI.01/${getRomanMonth(today.getMonth())}/${today.getFullYear()}`;
-        const noSuratLama = `Nomor : ${seqNumber2}/UPER-WRS.3.2/BA/TI.01/${getRomanMonth(today.getMonth())}/${today.getFullYear()}`;
+        const noSuratBaru = `Nomor : ${sqbaru}/UPER-WRS.3.2/BA/TI.01/${getRomanMonth(today.getMonth())}/${today.getFullYear()}`;
+        const noSuratLama = `Nomor : ${seqlama}/UPER-WRS.3.2/BA/TI.01/${getRomanMonth(today.getMonth())}/${today.getFullYear()}`;
 
         db.prepare(`
             UPDATE transaksi 
@@ -753,14 +793,41 @@ try {
 
         writeStream.on('finish', async () => {
             const mailOptions = {
-                from: '"TIK Universitas" <pertamapertamax@gmail.com>',
+                from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
                 to: data.email, 
-                subject: 'Dokumen BAST TIK Universitas',
+                subject: `[ALVIN] Dokumen BAST - ${data.nama}`,
                 html: `
-                    <div style="font-family: sans-serif; padding: 20px;">
-                        <h2 style="color: #e62129;">Serah Terima Berhasil</h2>
-                        <p>Halo <b>${data.nama}</b>,</p>
-                        <p>Terima kasih. Terlampir salinan Berita Acara Serah Terima (BAST) yang telah anda tandatangani.</p>
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eeeeee; border-radius: 10px; overflow: hidden;">
+                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-bottom: 3px solid #e62129;">
+                            <h1 style="margin: 0; color: #262626; font-size: 24px;">ALVIN</h1>
+                            <p style="margin: 0; color: #595959; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">
+                                Asset & Laptop Verification Inventory Network
+                            </p>
+                        </div>
+
+                        <div style="padding: 30px; line-height: 1.6; color: #333333;">
+                            <h2 style="color: #e62129; margin-top: 0;">Serah Terima Berhasil!</h2>
+                            
+                            <p>Halo <b>${data.nama}</b>,</p>
+                            
+                            <p>Terima kasih telah menggunakan website <b>ALVIN</b> untuk proses administrasi perangkat Anda. 
+                            Terlampir salinan Berita Acara Serah Terima (BAST) digital yang telah Anda tandatangani secara sah melalui sistem kami.</p>
+                            
+                            <p>Silakan simpan dokumen ini sebagai bukti resmi penyerahan aset.</p>
+                            
+                            <div style="margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px;">
+                                <p style="margin: 0;">Terima Kasih,</p>
+                                <p style="margin: 0; font-weight: bold;">Fungsi Teknologi Informasi dan Komunikasi</p>
+                                <p style="margin: 0;">Universitas Pertamina</p>
+                            </div>
+                        </div>
+
+                        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 11px; color: #8c8c8c;">
+                                    <p style="margin: 0;">
+                                        <a href="https://alvin.universitaspertamina.ac.id" style="color: #e62129; text-decoration: none; font-weight: bold;">ALVIN</a> 
+                                        | Asset Laptop Verification & Inventory
+                                    </p>
+                                </div>
                     </div>
                 `,
                 attachments: [
@@ -1015,6 +1082,7 @@ app.get('/download-pdf/:nip', (req, res) => {
         doc.text('Dengan ini, PIHAK PERTAMA menyerahkan barang kepada PIHAK KEDUA dan PIHAK KEDUA menyatakan telah menerima barang tersebut dari PIHAK PERTAMA berupa :', { align: 'justify', lineGap: 3 }); 
         doc.moveDown(1);
 
+        
         const tableTop2 = doc.y;
         doc.font('Times-Bold');
         doc.text('No', 50, tableTop2); 
@@ -1024,11 +1092,24 @@ app.get('/download-pdf/:nip', (req, res) => {
         doc.moveTo(50, tableTop2 + 15).lineTo(530, tableTop2 + 15).stroke();
 
         doc.font('Times-Roman');
+
+        const teksLama = `${data.model_lama} (SN: ${data.sn_lama})`;
+        const lebarKolomNama = 320;
+        
+        const tinggiTeksLama = doc.heightOfString(teksLama, { width: lebarKolomNama });
+
         doc.text('1', 50, tableTop2 + 25); 
-        doc.text(`${data.model_lama} (SN: ${data.sn_lama})`, 90, tableTop2 + 25); 
+        
+        doc.text(teksLama, 90, tableTop2 + 25, { 
+            width: lebarKolomNama, 
+            align: 'left' 
+        }); 
+        
         doc.text('1 Unit', 430, tableTop2 + 25); 
 
-        doc.x = 50; doc.y = tableTop2 + 50; doc.moveDown(1);
+        doc.x = 50;
+        doc.y = tableTop2 + 25 + tinggiTeksLama + 15;
+        doc.moveDown(1);
 
         doc.text('Sejak penandatangan berita acara ini, maka barang tersebut menjadi milik pengguna sehingga pemeliharaan dan perbaikan kerusakan terhadap barang tersebut menjadi tanggung jawab PIHAK KEDUA.', { align: 'justify', lineGap: 3 });
         doc.moveDown(1);
