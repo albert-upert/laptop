@@ -450,10 +450,10 @@ app.listen(PORT, () => {
 
 // Konfigurasi Transporter Email (Contoh menggunakan Gmail/SMTP Kampus)
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Atau sesuaikan dengan SMTP universitas
+    service: 'outlook', // Atau sesuaikan dengan SMTP universitas
     auth: {
-        user: 'akunonton631@gmail.com', // Email pengirim
-        pass: 'ibiq mbqj gxbs whvu'       // Password aplikasi
+        user: 'TIK@universitaspertamina.ac.id', // Email pengirim
+        pass: ''       // Password aplikasi
     }
 });
 
