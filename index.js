@@ -54,10 +54,20 @@ db.exec(`
     no_surat_baru TEXT,
     no_lama INTEGER UNIQUE,
     no_baru INTEGER UNIQUE,
-    tanggal_pengajuan DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tanggal_pengajuan DATETIME,
     tanggal_serah DATETIME,
     tanggal_terima DATETIME
   )
+`);
+db.exec(`
+  CREATE TRIGGER IF NOT EXISTS set_gmt7_timestamp
+  AFTER INSERT ON transaksi
+  FOR EACH ROW
+  BEGIN
+    UPDATE transaksi 
+    SET tanggal_pengajuan = datetime('now', '+7 hours') 
+    WHERE id = NEW.id;
+  END
 `);
 
 const checkData = db.prepare("SELECT count(*) as count FROM transaksi").get();
@@ -114,7 +124,7 @@ app.post('/cek-karyawan', async (req, res) => {
                 db.prepare("UPDATE transaksi SET otp = ?, email = ? WHERE nip = ?").run(otpBaru, emailTujuan, nip);
 
                 const mailOptions = {
-                        from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
+                        from: '"ALVIN - TIK Universitas" <TIK@universitaspertamina.ac.id>',
                         to: emailTujuan,
                         subject: `[ALVIN] Kode Verifikasi OTP - ${otpBaru}`,
                         html: `
@@ -317,7 +327,7 @@ app.post('/simpan-sn-lama/:id', (req, res) => {
                             Data perangkat dengan Serial Number <strong class="text-[#262626] font-bold">${dataUser.sn_lama || '-'}</strong> telah berhasil diverifikasi dalam sistem.
                         </p>
                         <p class="text-body-medium text-[#595959]">
-                            Langkah selanjutnya, silakan datang ke <span class="font-bold text-[#e62129]">Loket TIK</span> untuk proses serah terima fisik laptop baru Anda.
+                            Langkah selanjutnya, silakan datang ke <span class="font-bold text-[#e62129]">Loket TIK Universitas Pertamina</span> untuk proses serah terima fisik laptop baru Anda.
                         </p>
                     </div>
 
@@ -371,13 +381,13 @@ app.post('/admin/konfirmasi-lama/:id', async (req, res) => {
         db.prepare(`
             UPDATE transaksi 
             SET ml_is_handed_over = 1, 
-                tanggal_serah = CURRENT_TIMESTAMP 
+                tanggal_serah = datetime('now', '+7 hours') 
             WHERE id = ?
         `).run(id);
 
         if (dataUser.email) {
             const mailOptions = {
-                from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
+                from: '"ALVIN - TIK Universitas" <TIK@universitaspertamina.ac.id>',
                 to: dataUser.email,
                 subject: `[ALVIN] Konfirmasi Penerimaan Perangkat - ${dataUser.nama}`,
                 html: `
@@ -442,8 +452,8 @@ app.listen(PORT, () => {
 const transporter = nodemailer.createTransport({
     service: 'gmail', // Atau sesuaikan dengan SMTP universitas
     auth: {
-        user: 'pertamapertamax68@gmail.com', // Email pengirim
-        pass: 'fsmtaziqqiknibdl'       // Password aplikasi
+        user: 'akunonton631@gmail.com', // Email pengirim
+        pass: 'ibiq mbqj gxbs whvu'       // Password aplikasi
     }
 });
 
@@ -458,7 +468,7 @@ app.post('/approve/:id', (req, res) => {
                 model_baru = ?,
                 sn_baru = ?,
                 status = 'Completed',
-                tanggal_terima = CURRENT_TIMESTAMP
+                tanggal_terima = datetime('now', '+7 hours')
             WHERE id = ?
         `);
         
@@ -649,11 +659,18 @@ app.post('/save-signature/:id', async (req, res) => {
             doc.image(signatureImage, 350, sigTop + 15, { fit: [150, 65], align: 'center' });
         }
 
-        doc.font('Times-Bold');
+        doc.font('Times-Bold').fontSize(11);
         doc.text('Meredita Susanty', 90, sigTop + 85, { align: 'center', width: 150, underline: true });
-        doc.text(data.nama, 350, sigTop + 85, { align: 'center', width: 150, underline: true });
 
-        doc.font('Times-Roman');
+        let fontSizePihak2 = 11;
+        while (doc.widthOfString(data.nama) > 150 && fontSizePihak2 > 6) {
+            fontSizePihak2 -= 0.5;
+            doc.fontSize(fontSizePihak2);
+        }
+
+        doc.text(data.nama, 350, sigTop + 85, { align: 'center', width: 150, underline: true, lineBreak: false });
+
+        doc.font('Times-Roman').fontSize(11);
         doc.text('NIP. 116020', 90, sigTop + 100, { align: 'center', width: 150 });
         doc.text(`NIP. ${data.nip}`, 350, sigTop + 100, { align: 'center', width: 150 });
 
@@ -689,7 +706,7 @@ app.post('/save-signature/:id', async (req, res) => {
 
         startY2 += 15;
         doc.text('NIP', 50, startY2);        
-        doc.text(': 119030', 130, startY2);
+        doc.text(': 116020', 130, startY2);
 
         startY2 += 15;
         doc.text('Jabatan', 50, startY2);    
@@ -779,21 +796,29 @@ app.post('/save-signature/:id', async (req, res) => {
             doc.image(signatureImage, 350, sigTop2 + 30, { fit: [150, 65], align: 'center' });
         }
 
-        doc.font('Times-Bold');
+        doc.font('Times-Bold').fontSize(11);
         doc.text('Meredita Susanty', 90, sigTop2 + 100, { align: 'center', width: 150, underline: true });
+        
         doc.font('Times-Roman');
         doc.text('NIP. 116020', 90, sigTop2 + 115, { align: 'center', width: 150 });
 
-        doc.font('Times-Bold');
-        doc.text(`${data.nama}`, 350, sigTop2 + 100, { align: 'center', width: 150, underline: true }); 
-        doc.font('Times-Roman');
+        doc.font('Times-Bold').fontSize(11);
+        let fontSizePihak2_hal2 = 11;
+        while (doc.widthOfString(data.nama) > 150 && fontSizePihak2_hal2 > 6) {
+            fontSizePihak2_hal2 -= 0.5;
+            doc.fontSize(fontSizePihak2_hal2);
+        }
+
+        doc.text(`${data.nama}`, 350, sigTop2 + 100, { align: 'center', width: 150, underline: true, lineBreak: false }); 
+        
+        doc.font('Times-Roman').fontSize(11);
         doc.text(`NIP. ${data.nip}`, 350, sigTop2 + 115, { align: 'center', width: 150 });
 
         doc.end();
 
         writeStream.on('finish', async () => {
             const mailOptions = {
-                from: '"ALVIN - TIK Universitas" <pertamapertamax@gmail.com>',
+                from: '"ALVIN - TIK Universitas" <TIK@universitaspertamina.ac.id>',
                 to: data.email, 
                 subject: `[ALVIN] Dokumen BAST - ${data.nama}`,
                 html: `
@@ -1023,11 +1048,19 @@ app.get('/download-pdf/:nip', (req, res) => {
             doc.image(signatureImage, 350, sigTop + 15, { fit: [150, 65], align: 'center' });
         }
 
-        doc.font('Times-Bold');
-        doc.text('Meredita Susanty', 90, sigTop + 85, { align: 'center', width: 150, underline: true });
-        doc.text(data.nama, 350, sigTop + 85, { align: 'center', width: 150, underline: true });
 
-        doc.font('Times-Roman');
+        doc.font('Times-Bold').fontSize(11);
+        doc.text('Meredita Susanty', 90, sigTop + 85, { align: 'center', width: 150, underline: true });
+
+        let fontSizePihak2 = 11;
+        while (doc.widthOfString(data.nama) > 150 && fontSizePihak2 > 6) {
+            fontSizePihak2 -= 0.5;
+            doc.fontSize(fontSizePihak2);
+        }
+
+        doc.text(data.nama, 350, sigTop + 85, { align: 'center', width: 150, underline: true, lineBreak: false });
+
+        doc.font('Times-Roman').fontSize(11);
         doc.text('NIP. 116020', 90, sigTop + 100, { align: 'center', width: 150 });
         doc.text(`NIP. ${data.nip}`, 350, sigTop + 100, { align: 'center', width: 150 });
 
@@ -1138,14 +1171,22 @@ app.get('/download-pdf/:nip', (req, res) => {
             doc.image(signatureImage, 350, sigTop2 + 30, { fit: [150, 65], align: 'center' });
         }
 
-        doc.font('Times-Bold');
+        doc.font('Times-Bold').fontSize(11);
         doc.text('Meredita Susanty', 90, sigTop2 + 100, { align: 'center', width: 150, underline: true });
+        
         doc.font('Times-Roman');
         doc.text('NIP. 116020', 90, sigTop2 + 115, { align: 'center', width: 150 });
 
-        doc.font('Times-Bold');
-        doc.text(`${data.nama}`, 350, sigTop2 + 100, { align: 'center', width: 150, underline: true }); 
-        doc.font('Times-Roman');
+        doc.font('Times-Bold').fontSize(11);
+        let fontSizePihak2_hal2 = 11;
+        while (doc.widthOfString(data.nama) > 150 && fontSizePihak2_hal2 > 6) {
+            fontSizePihak2_hal2 -= 0.5;
+            doc.fontSize(fontSizePihak2_hal2);
+        }
+
+        doc.text(`${data.nama}`, 350, sigTop2 + 100, { align: 'center', width: 150, underline: true, lineBreak: false }); 
+
+        doc.font('Times-Roman').fontSize(11);
         doc.text(`NIP. ${data.nip}`, 350, sigTop2 + 115, { align: 'center', width: 150 });
 
         doc.end();
